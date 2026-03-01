@@ -1,0 +1,119 @@
+---
+// src/components/SEOMeta.astro
+// Complete SEO meta tag component
+
+import { SITE, buildTitle, buildCanonical, buildWebsiteSchema, buildOrganizationSchema } from '../lib/seo';
+
+interface Props {
+  title: string;
+  titleEs?: string;
+  description: string;
+  descriptionEs?: string;
+  image?: string;
+  imageAlt?: string;
+  slug?: string;
+  canonical?: string;
+  keywords?: string[];
+  type?: 'website' | 'article';
+  author?: string;
+  datePublished?: string;
+  dateModified?: string;
+  noindex?: boolean;
+  schema?: Record<string, unknown>[];
+  lang?: string;
+}
+
+const {
+  title,
+  titleEs,
+  description,
+  descriptionEs,
+  image = SITE.defaultImage,
+  imageAlt = title,
+  slug,
+  canonical = slug ? buildCanonical(slug) : SITE.url,
+  keywords = ['AI', 'artificial intelligence', 'machine learning', 'technology', 'innovation'],
+  type = 'website',
+  author = 'NeuralPulse Editorial Team',
+  datePublished,
+  dateModified,
+  noindex = false,
+  schema = [],
+  lang = 'en',
+} = Astro.props;
+
+const fullTitle = buildTitle(title);
+const ogImage = image.startsWith('http') ? image : `${SITE.url}${image}`;
+
+// Base schemas always present on every page
+const baseSchemas = [buildWebsiteSchema(), buildOrganizationSchema(), ...schema];
+---
+
+<!-- Primary Meta -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<meta name="keywords" content={keywords.join(', ')} />
+<meta name="author" content={author} />
+<meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'} />
+<meta name="googlebot" content={noindex ? 'noindex' : 'index, follow'} />
+<link rel="canonical" href={canonical} />
+
+<!-- Hreflang (bilingual) -->
+<link rel="alternate" hreflang="en" href={canonical} />
+{slug && <link rel="alternate" hreflang="es" href={`${SITE.url}/es/articulo/${slug}`} />}
+<link rel="alternate" hreflang="x-default" href={canonical} />
+
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={imageAlt} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content="en_US" />
+<meta property="og:locale:alternate" content="es_ES" />
+{type === 'article' && datePublished && (
+  <meta property="article:published_time" content={datePublished} />
+)}
+{type === 'article' && dateModified && (
+  <meta property="article:modified_time" content={dateModified} />
+)}
+{type === 'article' && author && (
+  <meta property="article:author" content={author} />
+)}
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content={SITE.twitter} />
+<meta name="twitter:creator" content={SITE.twitter} />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+<meta name="twitter:image:alt" content={imageAlt} />
+
+<!-- Additional SEO -->
+<meta name="theme-color" content="#050710" />
+<meta name="msapplication-TileColor" content="#050710" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+
+<!-- RSS Feed -->
+<link rel="alternate" type="application/rss+xml" title={`${SITE.name} RSS Feed`} href="/rss.xml" />
+
+<!-- Preconnects for performance -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://images.unsplash.com" />
+
+<!-- Google AdSense (replace with your publisher ID) -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+<!-- JSON-LD Structured Data -->
+{baseSchemas.map(s => (
+  <script type="application/ld+json" set:html={JSON.stringify(s)} />
+))}

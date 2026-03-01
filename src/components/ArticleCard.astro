@@ -1,0 +1,102 @@
+---
+// src/components/ArticleCard.astro
+import type { CollectionEntry } from "astro:content";
+import { formatDate } from "../lib/seo";
+
+interface Props {
+  article: CollectionEntry<"articles"> & {
+    data: {
+      slug: string;
+    };
+  };
+  featured?: boolean;
+  index?: number;
+}
+
+const { article, featured = false, index = 0 } = Astro.props;
+const a = article.data;
+
+const badgeLabels: Record<string, string> = {
+  breaking: "🔴 Breaking",
+  exclusive: "⭐ Exclusive",
+  trending: "🔥 Trending",
+  analysis: "◈ Analysis",
+};
+---
+
+<a
+  href={a.slug ? `/articulo/${a.slug}` : "#"}
+  class={`a-card${featured ? " featured" : ""}`}
+  style={`animation-delay: ${index * 0.08}s`}
+  aria-label={`Read: ${a.title}`}
+>
+  <div class="card-img-wrap">
+    <img
+      src={a.image}
+      alt={a.imageAlt}
+      class="card-img"
+      width="600"
+      height="200"
+      loading={index < 2 ? "eager" : "lazy"}
+    />
+  </div>
+  <div class="card-body">
+    <div class="card-meta-row">
+      <span class="cat-label">{a.category}</span>
+      {
+        a.badge && (
+          <span class={`badge badge-${a.badge}`}>
+            {badgeLabels[a.badge] || a.badge}
+          </span>
+        )
+      }
+    </div>
+    <h2 class="card-ttl" title={a.title}>{a.title}</h2>
+    {(featured || index === 0) && <p class="card-exc">{a.excerpt}</p>}
+    <div class="card-foot">
+      <span class="card-byline">
+        {a.author.split(",")[0]} · {formatDate(a.date)}
+        {a.readingTime && ` · ${a.readingTime}m`}
+      </span>
+    </div>
+  </div>
+</a>
+
+<style>
+  .card-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+  }
+
+  .a-card {
+    animation: cardReveal 0.5s ease forwards;
+    opacity: 0;
+  }
+  @keyframes cardReveal {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .a-card.featured .card-img {
+    height: 100%;
+    min-height: 280px;
+  }
+  .a-card.featured .card-body {
+    padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .a-card.featured .card-ttl {
+    font-size: 28px;
+    margin: 12px 0 16px;
+  }
+</style>

@@ -1,0 +1,91 @@
+---
+// src/components/Sidebar.astro
+import type { CollectionEntry } from 'astro:content';
+import AdSlot from './AdSlot.astro';
+
+interface Props {
+  trending: CollectionEntry<'articles'>[];
+  publisherId?: string;
+}
+const { trending, publisherId } = Astro.props;
+
+const tags = [
+  'GPT-5', 'NVIDIA', 'Llama 4', 'AI Agents', 'Robotics',
+  'DeepSeek', 'Claude', 'Gemini', 'AGI', 'OpenAI',
+  'Hardware', 'Regulation', 'LLM', 'Computer Vision',
+];
+---
+
+<aside class="sidebar" aria-label="Sidebar">
+
+  <!-- AD TOP -->
+  <AdSlot type="rectangle" publisherId={publisherId} label="Advertisement" />
+
+  <!-- TRENDING -->
+  <div class="widget fade-up">
+    <div class="w-hdr" data-en="Most Read" data-es="Más Leído">Most Read</div>
+    <div class="w-body">
+      <ul class="trend-list">
+        {trending.map((art, i) => (
+          <li class="trend-item">
+            <span class="trend-n">0{i + 1}</span>
+            <a href={`/articulo/${art.data.slug}`} class="trend-t">{art.data.title}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  <!-- NEWSLETTER -->
+  <div class="nl-widget fade-up" role="complementary" aria-label="Newsletter subscription">
+    <div class="nl-icon">◈</div>
+    <div class="nl-title" data-en="The <em>Neural</em> Brief" data-es="El Resumen <em>Neural</em>">
+      The <em>Neural</em> Brief
+    </div>
+    <div class="nl-sub" data-en="AI developments that matter, every morning. Free." data-es="Los avances de IA que importan, cada mañana. Gratis.">
+      AI developments that matter, every morning. Free.
+    </div>
+    <input class="nl-input" id="nl-email" type="email"
+      data-en-placeholder="your@email.com"
+      data-es-placeholder="tu@email.com"
+      placeholder="your@email.com"
+      autocomplete="email"
+    />
+    <button class="nl-btn" id="nl-btn" data-en="Get Free Access →" data-es="Acceder Gratis →">
+      Get Free Access →
+    </button>
+  </div>
+
+  <!-- TAGS -->
+  <div class="widget fade-up">
+    <div class="w-hdr" data-en="Topics" data-es="Temas">Topics</div>
+    <div class="w-body">
+      <div class="tag-cloud">
+        {tags.map(tag => (
+          <a href={`/buscar?q=${encodeURIComponent(tag)}`} class="tag-item">{tag}</a>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- AD BOTTOM -->
+  <AdSlot type="rectangle" publisherId={publisherId} label="Advertisement" />
+
+</aside>
+
+<script>
+  const btn = document.getElementById('nl-btn');
+  const input = document.getElementById('nl-email') as HTMLInputElement;
+  if (btn && input) {
+    btn.addEventListener('click', () => {
+      if (input.value.includes('@')) {
+        btn.textContent = '✓ Subscribed!';
+        (btn as HTMLButtonElement).style.background = 'var(--green)';
+        input.disabled = true;
+      } else {
+        input.style.borderColor = 'var(--red)';
+        input.placeholder = 'Please enter a valid email';
+      }
+    });
+  }
+</script>

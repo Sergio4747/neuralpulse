@@ -1,0 +1,123 @@
+---
+// src/layouts/BaseLayout.astro
+import SEOMeta from '../components/SEOMeta.astro';
+import Ticker from '../components/Ticker.astro';
+import Header from '../components/Header.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  titleEs?: string;
+  description: string;
+  descriptionEs?: string;
+  image?: string;
+  imageAlt?: string;
+  slug?: string;
+  canonical?: string;
+  keywords?: string[];
+  type?: 'website' | 'article';
+  author?: string;
+  datePublished?: string;
+  dateModified?: string;
+  noindex?: boolean;
+  schema?: Record<string, unknown>[];
+  currentPath?: string;
+}
+
+const {
+  currentPath = '/',
+  ...seoProps
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <SEOMeta {...seoProps} />
+</head>
+<body>
+
+  <Ticker />
+  <Header />
+  <Nav current={currentPath} />
+
+  <slot name="breaking" />
+
+  <main id="main-content">
+    <slot />
+  </main>
+
+  <Footer />
+
+  <!-- Language & Interactivity Script -->
+  <script>
+    // ═══ LANGUAGE SYSTEM ═══
+    let currentLang: string = localStorage.getItem('np-lang') || 'en';
+
+    function setLang(lang: string) {
+      currentLang = lang;
+      localStorage.setItem('np-lang', lang);
+      document.documentElement.setAttribute('data-lang', lang);
+
+      // Toggle button states
+      document.getElementById('btn-en')?.classList.toggle('active', lang === 'en');
+      document.getElementById('btn-es')?.classList.toggle('active', lang === 'es');
+
+      // Update all bilingual elements
+      document.querySelectorAll('[data-en]').forEach((el) => {
+        const val = el.getAttribute('data-' + lang);
+        if (val !== null) {
+          (el as HTMLElement).innerHTML = val;
+        }
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-en-placeholder]').forEach((el) => {
+        const placeholder = el.getAttribute('data-' + lang + '-placeholder');
+        if (placeholder) (el as HTMLInputElement).placeholder = placeholder;
+      });
+    }
+
+    // Apply saved language on load
+    setLang(currentLang);
+
+    // Expose to global
+    (window as any).setLang = setLang;
+
+    // ═══ SCROLL FADE-UP ═══
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      }),
+      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // ═══ READING PROGRESS BAR ═══
+    const progressBar = document.getElementById('reading-progress');
+    if (progressBar) {
+      window.addEventListener('scroll', () => {
+        const doc = document.documentElement;
+        const total = doc.scrollHeight - doc.clientHeight;
+        const progress = total > 0 ? (window.scrollY / total) * 100 : 0;
+        (progressBar as HTMLElement).style.width = `${progress}%`;
+      }, { passive: true });
+    }
+  </script>
+
+  <!-- Reading progress bar (article pages) -->
+  <div id="reading-progress" style="
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: var(--cyan); width: 0;
+    z-index: 9999; transition: width 0.1s;
+    box-shadow: 0 0 8px var(--cyan);
+  " aria-hidden="true"></div>
+
+</body>
+</html>

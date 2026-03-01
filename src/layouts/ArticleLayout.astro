@@ -1,0 +1,431 @@
+---
+// src/layouts/ArticleLayout.astro
+import BaseLayout from "./BaseLayout.astro";
+import AdSlot from "../components/AdSlot.astro";
+import Sidebar from "../components/Sidebar.astro";
+import type { CollectionEntry } from "astro:content";
+import {
+  formatDate,
+  formatISODate,
+  buildArticleSchema,
+  buildBreadcrumbSchema,
+} from "../lib/seo";
+
+interface Props {
+  article: CollectionEntry<"articles">;
+  related: CollectionEntry<"articles">[];
+  trending: CollectionEntry<"articles">[];
+}
+
+const { article, related, trending } = Astro.props;
+const a = article.data as typeof article.data & {
+  keywords: string[];
+};
+
+const articleSchema = buildArticleSchema({
+  title: a.title,
+  description: a.metaDescription,
+  image: a.image,
+  imageAlt: a.imageAlt,
+  author: a.author,
+  authorTitle: a.authorTitle,
+  datePublished: formatISODate(a.date),
+  dateModified: a.updatedDate
+    ? formatISODate(a.updatedDate)
+    : formatISODate(a.date),
+  slug: "",
+  keywords: a.keywords,
+  category: a.category,
+});
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: "Home", url: "https://neuralpulse.io" },
+  {
+    name: a.category,
+    url: `https://neuralpulse.io/categoria/${a.category.toLowerCase().replace(/ /g, "-")}`,
+  },
+  {
+    name: a.title.substring(0, 40) + "...",
+    url: `https://neuralpulse.io/articulo/${article.slug}`,
+  },
+]);
+---
+
+<BaseLayout
+  title={a.metaTitle || a.title}
+  titleEs={a.metaTitleEs}
+  description={a.metaDescription}
+  descriptionEs={a.metaDescriptionEs}
+  image={a.ogImage || a.image}
+  imageAlt={a.imageAlt}
+  slug=""
+  canonical={a.canonical}
+  keywords={a.keywords}
+  type="article"
+  author={a.author}
+  datePublished={formatISODate(a.date)}
+  dateModified={a.updatedDate
+    ? formatISODate(a.updatedDate)
+    : formatISODate(a.date)}
+  noindex={a.noindex}
+  schema={[articleSchema, breadcrumbSchema]}
+  currentPath="/articulo"
+>
+  <!-- ARTICLE HERO -->
+  <div class="art-hero">
+    <img
+      src={a.image}
+      alt={a.imageAlt}
+      class="art-hero-img"
+      width="1280"
+      height="500"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <div class="art-hero-overlay">
+      <div class="page art-hero-content">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="/" data-en="Home" data-es="Inicio">Home</a>
+          <span aria-hidden="true">›</span>
+          <a href={`/categoria/${a.category.toLowerCase().replace(/ /g, "-")}`}
+            >{a.category}</a
+          >
+        </nav>
+
+        <!-- Kicker -->
+        <div class="art-kicker">
+          <span class="kicker-line" aria-hidden="true"></span>
+          <span class="cat-label">{a.category}</span>
+          {a.badge && <span class={`badge badge-${a.badge}`}>{a.badge}</span>}
+        </div>
+
+        <!-- Title -->
+        <h1 class="art-title" set:html={a.title} />
+
+        <!-- Byline -->
+        <div class="art-byline">
+          <span>
+            <strong>{a.author}</strong>
+            {
+              a.authorTitle && (
+                <span class="author-title">, {a.authorTitle}</span>
+              )
+            }
+          </span>
+          <span class="byline-sep" aria-hidden="true">·</span>
+          <time datetime={formatISODate(a.date)}>{formatDate(a.date)}</time>
+          {
+            a.readingTime && (
+              <>
+                <span class="byline-sep" aria-hidden="true">
+                  ·
+                </span>
+                <span
+                  data-en={`${a.readingTime} min read`}
+                  data-es={`${a.readingTime} min de lectura`}
+                >
+                  {a.readingTime} min read
+                </span>
+              </>
+            )
+          }
+        </div>
+
+        <!-- Excerpt -->
+        <p class="art-lead" set:html={a.excerpt} />
+      </div>
+    </div>
+  </div>
+
+  <!-- AD AFTER HERO -->
+  <div class="page">
+    <AdSlot type="inline" />
+  </div>
+
+  <!-- ARTICLE BODY + SIDEBAR -->
+  <div class="page content-wrap" style="margin-top: 40px;">
+    <article>
+      <!-- SEO Info Bar -->
+      <div class="seo-info-bar" aria-label="Article metadata">
+        <span class="seo-item">
+          <span class="seo-icon" aria-hidden="true">🔑</span>
+          <span data-en="Keywords:" data-es="Palabras clave:">Keywords:</span>
+          <strong>{a.keywords.slice(0, 4).join(", ")}</strong>
+        </span>
+        <span class="seo-item">
+          <span class="seo-icon" aria-hidden="true">🌐</span>
+          <span data-en="Available in EN · ES" data-es="Disponible en EN · ES"
+            >Available in EN · ES</span
+          >
+        </span>
+      </div>
+
+      <!-- ARTICLE CONTENT -->
+      <div class="article-content">
+        <slot />
+      </div>
+
+      <!-- IN-ARTICLE AD (mid) -->
+      <AdSlot type="inline" />
+
+      <!-- KEYWORDS -->
+      <div class="art-keywords">
+        <span
+          class="art-kw-label"
+          data-en="Related topics:"
+          data-es="Temas relacionados:">Related topics:</span
+        >
+        {
+          a.keywords.map((kw: string) => (
+            <a href={`/buscar?q=${encodeURIComponent(kw)}`} class="kw-pill">
+              {kw}
+            </a>
+          ))
+        }
+      </div>
+
+      <!-- RELATED ARTICLES -->
+      {
+        related.length > 0 && (
+          <div class="related-section">
+            <div class="section-hdr" style="margin-top:0">
+              <h2 data-en="Related Stories" data-es="Artículos Relacionados">
+                Related Stories
+              </h2>
+              <div class="line" />
+            </div>
+            <div class="related-grid">
+              {related.map((rel) => (
+                <a href={`/articulo/${rel.slug}`} class="rel-card">
+                  <img
+                    src={rel.data.image}
+                    alt={rel.data.imageAlt}
+                    width="280"
+                    height="140"
+                    loading="lazy"
+                  />
+                  <div class="rel-body">
+                    <div class="cat-label">{rel.data.category}</div>
+                    <div class="rel-ttl">{rel.data.title}</div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )
+      }
+    </article>
+
+    <Sidebar trending={trending} />
+  </div>
+</BaseLayout>
+
+<style>
+  .art-hero {
+    position: relative;
+    height: 520px;
+    overflow: hidden;
+    background: var(--black-mid);
+  }
+  .art-hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.4) saturate(0.7);
+  }
+  .art-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(5, 7, 16, 0.98) 0%,
+      rgba(5, 7, 16, 0.6) 55%,
+      rgba(5, 7, 16, 0.1) 90%,
+      transparent 100%
+    );
+    display: flex;
+    align-items: flex-end;
+  }
+  .art-hero-content {
+    padding-bottom: 44px;
+  }
+
+  .breadcrumb {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--white-mute);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .breadcrumb a {
+    color: var(--white-mute);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .breadcrumb a:hover {
+    color: var(--cyan);
+  }
+
+  .art-kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .kicker-line {
+    width: 20px;
+    height: 1px;
+    background: var(--cyan);
+  }
+
+  .art-title {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: normal;
+    color: var(--white);
+    line-height: 1.1;
+    max-width: 800px;
+    margin-bottom: 18px;
+  }
+  .art-byline {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .byline-sep {
+    color: var(--white-mute);
+  }
+  .author-title {
+    color: var(--white-mute);
+  }
+  .art-lead {
+    font-family: var(--font-body);
+    font-size: 17px;
+    color: rgba(240, 244, 255, 0.65);
+    line-height: 1.65;
+    max-width: 680px;
+  }
+
+  .seo-info-bar {
+    background: var(--black-ele);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--cyan);
+    padding: 12px 18px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .seo-item {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--white-mute);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .seo-item strong {
+    color: var(--cyan);
+  }
+
+  .art-keywords {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .art-kw-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--white-mute);
+    letter-spacing: 0.1em;
+  }
+  .kw-pill {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    background: var(--black-ele);
+    border: 1px solid var(--border-subtle);
+    color: var(--cyan);
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .kw-pill:hover {
+    background: var(--cyan);
+    color: var(--black);
+  }
+
+  .related-section {
+    margin-top: 48px;
+  }
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .rel-card {
+    background: var(--black-card);
+    border: 1px solid var(--border-subtle);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .rel-card:hover {
+    border-color: var(--cyan);
+  }
+  .rel-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    filter: grayscale(20%);
+    transition: filter 0.3s;
+  }
+  .rel-card:hover img {
+    filter: grayscale(0);
+  }
+  .rel-body {
+    padding: 12px 14px;
+  }
+  .rel-ttl {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.35;
+    margin-top: 5px;
+    transition: color 0.2s;
+  }
+  .rel-card:hover .rel-ttl {
+    color: var(--cyan);
+  }
+
+  @media (max-width: 768px) {
+    .art-hero {
+      height: 380px;
+    }
+    .art-title {
+      font-size: 28px;
+    }
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

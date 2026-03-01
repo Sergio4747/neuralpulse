@@ -1,0 +1,244 @@
+---
+// src/pages/index.astro
+import BaseLayout from "../layouts/BaseLayout.astro";
+import BreakingBar from "../components/BreakingBar.astro";
+import Hero from "../components/Hero.astro";
+import ArticleCard from "../components/ArticleCard.astro";
+import Sidebar from "../components/Sidebar.astro";
+import AdSlot from "../components/AdSlot.astro";
+import { getCollection } from "astro:content";
+import { SITE } from "../lib/seo";
+
+// Get all articles, sorted by date
+const allArticles = (await getCollection("articles"))
+  .map((article) => ({
+    ...article,
+    data: {
+      ...article.data,
+      slug: article.slug, // Ensure slug is included in the data
+    },
+  }))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const featured = allArticles.find((a) => a.data.featured) || allArticles[0];
+const heroSidebar = allArticles
+  .filter((a) => a.data.slug !== featured.data.slug)
+  .slice(0, 4);
+const mainArticles = allArticles
+  .filter((a) => a.data.slug !== featured.data.slug)
+  .slice(0, 5);
+const listArticles = allArticles.slice(0, 3);
+const trending = allArticles.slice(0, 5);
+---
+
+<BaseLayout
+  title="NeuralPulse — AI & Innovation Intelligence"
+  description="The world's leading source for AI research, technology breakthroughs, robotics, and innovation analysis. Daily coverage in English and Spanish."
+  keywords={[
+    "artificial intelligence",
+    "AI news",
+    "machine learning",
+    "GPT-5",
+    "NVIDIA",
+    "OpenAI",
+    "innovation",
+    "technology",
+  ]}
+  type="website"
+  currentPath="/"
+>
+  <!-- BREAKING BAR -->
+  <Fragment slot="breaking">
+    <BreakingBar />
+  </Fragment>
+
+  <!-- LEADERBOARD AD -->
+  <div class="page">
+    <AdSlot type="leaderboard" />
+  </div>
+
+  <!-- HERO -->
+  <div class="page">
+    <Hero featured={featured} sidebar={heroSidebar} />
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="page content-wrap" style="margin-top: 32px;">
+    <div>
+      <!-- SECTION: LATEST -->
+      <div class="section-hdr fade-up">
+        <span class="tag" data-en="Latest" data-es="Últimas">Latest</span>
+        <h2 data-en="Breaking Stories" data-es="Últimas Noticias">
+          Breaking Stories
+        </h2>
+        <div class="line"></div>
+        <a href="/archivo" data-en="View all →" data-es="Ver todo →"
+          >View all →</a
+        >
+      </div>
+
+      <!-- ARTICLES GRID -->
+      <div class="articles-grid">
+        {
+          mainArticles.slice(0, 5).map((article, i) => (
+            <ArticleCard
+              article={{
+                ...article,
+                data: {
+                  ...article.data,
+                  title: `<span data-en="${article.data.title}" data-es="${article.data.titleEs}">${article.data.title}</span>`,
+                  excerpt: `<span data-en="${article.data.excerpt}" data-es="${article.data.excerptEs}">${article.data.excerpt}</span>`,
+                },
+              }}
+              featured={i === 0}
+              index={i}
+            />
+          ))
+        }
+      </div>
+
+      <!-- INLINE AD -->
+      <AdSlot type="inline" />
+
+      <!-- SECTION: DEEP DIVES -->
+      <div class="section-hdr fade-up">
+        <span class="tag" data-en="Deep Dives" data-es="Análisis"
+          >Deep Dives</span
+        >
+        <h2 data-en="In-Depth Analysis" data-es="Análisis en Profundidad">
+          In-Depth Analysis
+        </h2>
+        <div class="line"></div>
+        <a href="/categoria/analysis" data-en="View all →" data-es="Ver todo →"
+          >View all →</a
+        >
+      </div>
+
+      <!-- LIST GRID -->
+      <div class="list-grid fade-up">
+        {
+          listArticles.map((art, i) => (
+            <a href={`/articulo/${art.data.slug}`} class="l-card">
+              <div class="l-num">0{i + 1}</div>
+              <div class="cat-label" style="margin-bottom: 8px">
+                {art.data.category}
+              </div>
+              <div class="l-ttl">{art.data.title}</div>
+              <div class="l-exc">{art.data.excerpt.substring(0, 120)}...</div>
+            </a>
+          ))
+        }
+      </div>
+
+      <!-- PROMO BANNER -->
+      <div class="promo-banner fade-up">
+        <div class="promo-content">
+          <div
+            class="promo-label"
+            data-en="FREE NEWSLETTER"
+            data-es="NEWSLETTER GRATIS"
+          >
+            FREE NEWSLETTER
+          </div>
+          <h3
+            class="promo-title"
+            data-en="Stay ahead of the AI curve"
+            data-es="Adelántate a la curva de la IA"
+          >
+            Stay ahead of the AI curve
+          </h3>
+          <p
+            class="promo-desc"
+            data-en="Every weekday morning: the 5 AI developments that matter most, explained clearly in 5 minutes."
+            data-es="Cada mañana entre semana: los 5 avances de IA más importantes, explicados en 5 minutos."
+          >
+            Every weekday morning: the 5 AI developments that matter most,
+            explained clearly in 5 minutes.
+          </p>
+        </div>
+        <button
+          class="promo-btn"
+          data-en="Subscribe Free →"
+          data-es="Suscribirme Gratis →">Subscribe Free →</button
+        >
+      </div>
+
+      <!-- SECOND INLINE AD -->
+      <AdSlot type="inline" />
+    </div>
+
+    <!-- SIDEBAR -->
+    <Sidebar trending={trending} />
+  </div>
+</BaseLayout>
+
+<style>
+  .promo-banner {
+    background: var(--black-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--cyan);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 36px;
+    padding: 32px 36px;
+    margin: 32px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .promo-banner::after {
+    content: "◈";
+    position: absolute;
+    right: 180px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 100px;
+    color: rgba(0, 212, 255, 0.03);
+    pointer-events: none;
+    font-family: var(--font-mono);
+  }
+  .promo-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .promo-title {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: normal;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .promo-desc {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--white-dim);
+  }
+  .promo-btn {
+    background: var(--cyan);
+    color: var(--black);
+    border: none;
+    padding: 14px 28px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+  }
+  .promo-btn:hover {
+    opacity: 0.85;
+  }
+
+  @media (max-width: 768px) {
+    .promo-banner {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

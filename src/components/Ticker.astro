@@ -1,0 +1,75 @@
+---
+// src/components/Ticker.astro
+---
+
+<div class="ticker-wrap" aria-hidden="true">
+  <div class="ticker-inner">
+    <div class="ticker-track" id="ticker-track">
+      <span class="t-item"><span class="sym">GPT-5</span> <span class="up">Released ▲ +230% searches</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">NVDA</span> <span class="up">$1,247.80 ▲ +3.2%</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">MSFT</span> <span class="up">$408.30 ▲ +0.87%</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">GOOG</span> <span class="dn">$178.40 ▼ -1.2%</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">META</span> <span class="up">$612.50 ▲ +2.1%</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">AAPL</span> <span class="up">$241.80 ▲ +1.23%</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">ANTHROPIC</span> <span class="t-neutral">Valued at $61B</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">OPENAI</span> <span class="t-neutral">$157B valuation</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">AI INVESTMENT</span> <span class="up">$670B in 2025 ▲</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">DEEPSEEK R2</span> <span class="up">Open source launch</span></span>
+      <span class="t-sep">◆</span>
+      <!-- duplicate for seamless loop -->
+      <span class="t-item"><span class="sym">GPT-5</span> <span class="up">Released ▲ +230% searches</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">NVDA</span> <span class="up">$1,247.80 ▲ +3.2%</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">MSFT</span> <span class="up">$408.30 ▲ +0.87%</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">GOOG</span> <span class="dn">$178.40 ▼ -1.2%</span></span>
+      <span class="t-sep">◆</span>
+      <span class="t-item"><span class="sym">AI INVESTMENT</span> <span class="up">$670B in 2025 ▲</span></span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ticker-wrap {
+    background: var(--black-mid);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    padding: 7px 0;
+  }
+  .ticker-inner { overflow: hidden; }
+  .ticker-track {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    animation: tickerMove 45s linear infinite;
+  }
+  .ticker-track:hover { animation-play-state: paused; }
+  @keyframes tickerMove {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .t-item {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 0 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    letter-spacing: 0.04em;
+  }
+  .sym { color: var(--cyan); font-weight: 500; }
+  .up { color: var(--green); }
+  .dn { color: var(--red); }
+  .t-neutral { color: var(--white-dim); }
+  .t-sep { color: var(--border); padding: 0 4px; }
+</style>

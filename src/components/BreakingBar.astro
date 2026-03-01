@@ -1,0 +1,44 @@
+---
+// src/components/BreakingBar.astro
+---
+
+<div class="breaking-bar" role="alert" aria-live="polite">
+  <span class="breaking-badge" data-en="BREAKING" data-es="URGENTE">BREAKING</span>
+  <p class="breaking-text">
+    <strong>GPT-5</strong>
+    <span data-en="launches with near-human reasoning capabilities — OpenAI says it's the biggest model leap yet">
+      launches with near-human reasoning capabilities — OpenAI says it's the biggest model leap yet
+    </span>
+    <a href="/articulo/gpt5-launch-biggest-leap-ai" data-en="Read more →" data-es="Leer más →">Read more →</a>
+  </p>
+</div>
+
+<style>
+  .breaking-bar {
+    background: var(--red);
+    display: flex; align-items: center; gap: 18px;
+    padding: 10px 32px;
+    overflow: hidden;
+  }
+  .breaking-badge {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.22em;
+    background: white; color: var(--red);
+    padding: 3px 10px; font-weight: 500;
+    flex-shrink: 0;
+    animation: blinkBadge 2s step-end infinite;
+  }
+  @keyframes blinkBadge { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .breaking-text {
+    font-family: var(--font-body);
+    font-size: 14px; color: rgba(255,255,255,0.92);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .breaking-text strong { color: white; font-weight: 700; }
+  .breaking-text a {
+    color: white; font-weight: 600;
+    text-decoration: underline; margin-left: 8px;
+    flex-shrink: 0;
+  }
+</style>

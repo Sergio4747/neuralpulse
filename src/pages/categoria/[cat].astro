@@ -1,0 +1,115 @@
+---
+// src/pages/categoria/[cat].astro
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArticleCard from "../../components/ArticleCard.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import AdSlot from "../../components/AdSlot.astro";
+import { getCollection } from "astro:content";
+import type { GetStaticPaths } from "astro";
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const articles = await getCollection("articles");
+  const categories = [...new Set(articles.map((a) => a.data.category))];
+
+  return categories.map((category) => ({
+    params: { cat: category.toLowerCase().replace(/ /g, "-") },
+    props: {
+      category,
+      articles: articles.filter((a) => a.data.category === category),
+    },
+  }));
+};
+
+const { category, articles } = Astro.props as { category: string; articles: any[] };
+const sortedArticles = (articles as any[]).sort(
+  (a: any, b: any) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const allArticles = await getCollection("articles");
+const trending = allArticles
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 5);
+---
+
+<BaseLayout
+  title={`${category} — NeuralPulse`}
+  description={`Latest ${category} news, analysis and research. Stay informed on AI and innovation developments in ${category}.`}
+  keywords={[
+    category,
+    "AI",
+    "artificial intelligence",
+    "technology",
+    "innovation",
+  ]}
+  type="website"
+  currentPath={`/categoria/${category.toLowerCase().replace(/ /g, "-")}`}
+>
+  <div class="page">
+    <div class="cat-header fade-up">
+      <div class="cat-header-label" data-en="Category" data-es="Categoría">
+        Category
+      </div>
+      <h1 class="cat-header-title">{category}</h1>
+      <p class="cat-header-count">
+        {sortedArticles.length}
+        <span data-en=" articles" data-es=" artículos"> articles</span>
+      </p>
+    </div>
+
+    <AdSlot type="leaderboard" />
+
+    <div class="content-wrap" style="margin-top: 28px;">
+      <div>
+        <div class="articles-grid">
+          {
+            sortedArticles.map((article: any, i: number) =>
+              article.data.slug ? (
+                <ArticleCard article={article} featured={i === 0} index={i} />
+              ) : null
+            )
+          }
+        </div>
+      </div>
+      <Sidebar trending={trending} />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .cat-header {
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 32px 0 24px;
+    margin-top: 20px;
+    position: relative;
+  }
+  .cat-header::before {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 80px;
+    height: 2px;
+    background: var(--cyan);
+  }
+  .cat-header-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 8px;
+  }
+  .cat-header-title {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: normal;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .cat-header-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--white-mute);
+  }
+</style>

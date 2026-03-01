@@ -1,0 +1,178 @@
+---
+// src/components/Footer.astro
+import { SITE } from '../lib/seo';
+
+const year = new Date().getFullYear();
+
+const sections = [
+  {
+    titleEn: 'Coverage', titleEs: 'Cobertura',
+    links: [
+      { en: 'AI Models', es: 'Modelos IA', href: '/categoria/ai-models' },
+      { en: 'Hardware', es: 'Hardware', href: '/categoria/hardware' },
+      { en: 'Big Tech', es: 'Big Tech', href: '/categoria/big-tech' },
+      { en: 'Robotics', es: 'Robótica', href: '/categoria/robotics' },
+      { en: 'Research', es: 'Investigación', href: '/categoria/research' },
+      { en: 'Startups', es: 'Startups', href: '/categoria/startups' },
+    ]
+  },
+  {
+    titleEn: 'Resources', titleEs: 'Recursos',
+    links: [
+      { en: 'AI Tools Directory', es: 'Directorio de Herramientas', href: '/tools' },
+      { en: 'AI Glossary', es: 'Glosario IA', href: '/glosario' },
+      { en: 'Newsletter Archive', es: 'Archivo Newsletter', href: '/newsletter' },
+      { en: 'RSS Feed', es: 'RSS Feed', href: '/rss.xml' },
+      { en: 'Sitemap', es: 'Mapa del Sitio', href: '/sitemap-index.xml' },
+    ]
+  },
+  {
+    titleEn: 'Company', titleEs: 'Empresa',
+    links: [
+      { en: 'About Us', es: 'Nosotros', href: '/about' },
+      { en: 'Editorial Policy', es: 'Política Editorial', href: '/about/editorial-policy' },
+      { en: 'Advertise', es: 'Publicitar', href: '/advertise' },
+      { en: 'Contact', es: 'Contacto', href: '/contact' },
+      { en: 'Privacy Policy', es: 'Privacidad', href: '/privacy' },
+      { en: 'Terms of Use', es: 'Términos de Uso', href: '/terms' },
+    ]
+  }
+];
+---
+
+<footer>
+  <div class="footer-glow" aria-hidden="true"></div>
+  <div class="page footer-wrap">
+
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" class="footer-logo" aria-label="NeuralPulse Home">
+          Neural<span>Pulse</span>
+        </a>
+        <div class="footer-tagline" data-en="AI & Innovation Intelligence" data-es="Inteligencia en IA e Innovación">
+          AI &amp; Innovation Intelligence
+        </div>
+        <p class="footer-desc" data-en="The world's leading source for AI research, technology breakthroughs, and innovation analysis. Trusted by 1M+ developers, researchers, and executives worldwide." data-es="La fuente líder mundial en investigación de IA, avances tecnológicos y análisis de innovación. Con la confianza de más de 1M de profesionales en todo el mundo.">
+          The world's leading source for AI research, technology breakthroughs, and innovation analysis. Trusted by 1M+ developers, researchers, and executives worldwide.
+        </p>
+        <div class="footer-social">
+          <a href="#" class="social-link" aria-label="Twitter">𝕏</a>
+          <a href="#" class="social-link" aria-label="LinkedIn">in</a>
+          <a href="#" class="social-link" aria-label="YouTube">▶</a>
+          <a href="/rss.xml" class="social-link" aria-label="RSS Feed">⌖</a>
+        </div>
+      </div>
+
+      {sections.map(sec => (
+        <div class="footer-col">
+          <h3 class="footer-col-hdr" data-en={sec.titleEn} data-es={sec.titleEs}>{sec.titleEn}</h3>
+          <nav aria-label={sec.titleEn}>
+            {sec.links.map(link => (
+              <a href={link.href} class="footer-link" data-en={link.en} data-es={link.es}>{link.en}</a>
+            ))}
+          </nav>
+        </div>
+      ))}
+    </div>
+
+    <div class="footer-bottom">
+      <span class="footer-copy">© {year} NeuralPulse Media. All rights reserved.</span>
+      <span class="footer-disclaimer" data-en="AI-powered editorial assistance. All content reviewed by human editors." data-es="Asistencia editorial con IA. Todo el contenido revisado por editores humanos.">
+        AI-powered editorial assistance. All content reviewed by human editors.
+      </span>
+    </div>
+
+  </div>
+</footer>
+
+<style>
+  footer {
+    background: var(--black-mid);
+    border-top: 1px solid var(--border);
+    padding: 52px 0 24px;
+    margin-top: 70px;
+    position: relative;
+    overflow: hidden;
+  }
+  .footer-glow {
+    position: absolute;
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 200px;
+    background: radial-gradient(ellipse at bottom, rgba(0,212,255,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .footer-wrap { position: relative; z-index: 1; }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    padding-bottom: 44px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 24px;
+  }
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 28px; font-weight: normal;
+    color: var(--white); text-decoration: none;
+    display: block; margin-bottom: 4px;
+  }
+  .footer-logo span { color: var(--cyan); }
+  .footer-tagline {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.25em;
+    color: var(--white-mute); text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .footer-desc {
+    font-family: var(--font-body);
+    font-size: 13.5px; color: var(--white-mute);
+    line-height: 1.7; max-width: 300px;
+    margin-bottom: 16px;
+  }
+  .footer-social { display: flex; gap: 10px; }
+  .social-link {
+    font-family: var(--font-mono); font-size: 13px;
+    color: var(--white-mute); text-decoration: none;
+    width: 32px; height: 32px;
+    border: 1px solid var(--border-subtle);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .social-link:hover { border-color: var(--cyan); color: var(--cyan); }
+  .footer-col-hdr {
+    font-family: var(--font-mono);
+    font-size: 9.5px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--cyan);
+    margin-bottom: 16px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    font-weight: normal;
+  }
+  .footer-link {
+    display: block; font-family: var(--font-body);
+    font-size: 13.5px; color: var(--white-mute);
+    text-decoration: none; margin-bottom: 10px;
+    transition: color 0.15s;
+  }
+  .footer-link:hover { color: var(--cyan); }
+  .footer-bottom {
+    display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 12px;
+  }
+  .footer-copy {
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 0.06em;
+    color: var(--white-mute);
+  }
+  .footer-disclaimer {
+    font-family: var(--font-mono);
+    font-size: 10px; color: var(--white-mute);
+    opacity: 0.5;
+  }
+  @media (max-width: 900px) {
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .footer-brand { grid-column: 1 / -1; }
+  }
+  @media (max-width: 600px) {
+    .footer-top { grid-template-columns: 1fr; gap: 28px; }
+  }
+</style>

@@ -1,0 +1,107 @@
+---
+// src/components/Nav.astro
+
+interface Props {
+  current?: string;
+}
+const { current = '/' } = Astro.props;
+
+const categories = [
+  { slug: '/', labelEn: 'Home',       labelEs: 'Inicio' },
+  { slug: '/categoria/ai-models',   labelEn: 'AI Models',     labelEs: 'Modelos IA' },
+  { slug: '/categoria/hardware',    labelEn: 'Hardware',      labelEs: 'Hardware' },
+  { slug: '/categoria/big-tech',    labelEn: 'Big Tech',      labelEs: 'Big Tech' },
+  { slug: '/categoria/robotics',    labelEn: 'Robotics',      labelEs: 'Robótica' },
+  { slug: '/categoria/research',    labelEn: 'Research',      labelEs: 'Investigación' },
+  { slug: '/categoria/startups',    labelEn: 'Startups',      labelEs: 'Startups' },
+  { slug: '/categoria/policy',      labelEn: 'Policy',        labelEs: 'Regulación' },
+  { slug: '/categoria/tools',       labelEn: 'Tools',         labelEs: 'Herramientas' },
+];
+---
+
+<nav class="main-nav" aria-label="Main navigation">
+  <div class="page nav-inner">
+    {categories.map(cat => (
+      <a
+        href={cat.slug}
+        class={`nav-link ${current === cat.slug ? 'active' : ''}`}
+        data-en={cat.labelEn}
+        data-es={cat.labelEs}
+        aria-current={current === cat.slug ? 'page' : undefined}
+      >
+        {cat.labelEn}
+      </a>
+    ))}
+    <a href="/breaking" class="nav-link nav-live" data-en="Live" data-es="En Vivo">
+      Live
+    </a>
+  </div>
+</nav>
+
+<style>
+  .main-nav {
+    background: var(--black-mid);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .nav-inner::-webkit-scrollbar { display: none; }
+
+  .nav-link {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white-mute);
+    text-decoration: none;
+    padding: 14px 15px;
+    display: block;
+    white-space: nowrap;
+    transition: color 0.15s;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%; right: 50%;
+    height: 2px;
+    background: var(--cyan);
+    transition: left 0.2s, right 0.2s;
+  }
+  .nav-link:hover { color: var(--white); }
+  .nav-link:hover::after,
+  .nav-link.active::after { left: 12px; right: 12px; }
+  .nav-link.active { color: var(--cyan); }
+
+  .nav-live {
+    margin-left: auto;
+    color: var(--red) !important;
+    display: flex !important;
+    align-items: center;
+    gap: 7px;
+  }
+  .nav-live::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+    animation: liveDot 1.8s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  .nav-live::after { display: none; }
+  @keyframes liveDot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,60,90,0.5); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 5px rgba(255,60,90,0); }
+  }
+</style>

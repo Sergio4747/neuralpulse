@@ -1,0 +1,50 @@
+---
+// src/components/AdSlot.astro
+// Replace placeholder content with your actual AdSense code when approved
+
+interface Props {
+  type?: 'leaderboard' | 'rectangle' | 'inline';
+  slotId?: string;
+  publisherId?: string;
+  label?: string;
+}
+
+const {
+  type = 'inline',
+  slotId = '',
+  publisherId = import.meta.env.PUBLIC_ADSENSE_ID || '',
+  label = 'Advertisement',
+} = Astro.props;
+
+const sizeMap = {
+  leaderboard: { w: '728', h: '90', class: 'ad-leaderboard' },
+  rectangle:   { w: '300', h: '250', class: 'ad-rectangle' },
+  inline:      { w: '728', h: '90',  class: 'ad-inline' },
+};
+const size = sizeMap[type];
+---
+
+<div class={`ad-slot ${size.class}`} role="complementary" aria-label={label}>
+  {publisherId && slotId ? (
+    <!-- PRODUCTION: Real AdSense ad -->
+    <ins
+      class="adsbygoogle"
+      style="display:block"
+      data-ad-client={publisherId}
+      data-ad-slot={slotId}
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    ></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  ) : (
+    <!-- DEVELOPMENT: Placeholder -->
+    <>
+      <span class="ad-label">{label}</span>
+      <span class="ad-size">{size.w}×{size.h} — {type}</span>
+    </>
+  )}
+</div>
+
+<style>
+  /* Styles inherited from global.css */
+</style>

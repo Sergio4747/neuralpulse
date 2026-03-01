@@ -1,0 +1,43 @@
+---
+// src/pages/articulo/[slug].astro
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+import { getCollection, getEntry, type CollectionEntry } from "astro:content";
+import type { GetStaticPaths } from "astro";
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const articles = (await getCollection(
+    "articles"
+  )) as CollectionEntry<"articles">[];
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+};
+
+const { article } = Astro.props as { article: CollectionEntry<"articles"> };
+const { Content } = await article.render();
+
+// Get related articles
+const allArticles = await getCollection("articles");
+
+const related = article.data.relatedSlugs?.length
+  ? (article.data.relatedSlugs
+      .map((slug) => allArticles.find((a) => a.slug === slug))
+      .filter(Boolean)
+      .slice(0, 4) as typeof allArticles)
+  : allArticles
+      .filter(
+        (a) =>
+          a.slug !== article.slug && a.data.category === article.data.category
+      )
+      .slice(0, 4);
+
+const trending = allArticles
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .filter((a) => a.slug !== article.slug)
+  .slice(0, 5);
+---
+
+<ArticleLayout article={article} related={related} trending={trending}>
+  <Content />
+</ArticleLayout>
